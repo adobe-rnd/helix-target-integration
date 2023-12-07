@@ -154,7 +154,9 @@ export default function startTargeting(client, host) {
   // });
   getDecoratedMain().then(async (main) => {
     const offers = await offersPromise;
-    console.log('offers', offers);
+    offers.forEach((offer) => {
+      console.log('offer', offer);
+    });
     window.measurePerfMark('targeting: loading offers');
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
