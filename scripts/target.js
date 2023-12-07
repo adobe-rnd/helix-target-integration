@@ -134,7 +134,7 @@ function renderOffers(section, decisions) {
         section.style.visibility = 'visible';
         console.log('section rendered', section);
         console.log('Hello World');
-        // window.measurePerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
+        window.measurePerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
       }
     }
   });
