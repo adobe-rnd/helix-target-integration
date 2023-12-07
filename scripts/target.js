@@ -179,7 +179,7 @@ export default function startTargeting(client, host) {
       renderOffers(section, offers);
     })).then(() => {
       // document.body.style.visibility = 'visible';
-      window.measurePerfMark('targeting: all');
+      // window.measurePerfMark('targeting: all');
     });
   });
 }
