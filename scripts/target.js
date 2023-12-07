@@ -133,6 +133,7 @@ function renderOffers(section, decisions) {
         targetElement.innerHTML = content;
         section.style.visibility = 'visible';
         console.log('section rendered', section);
+        console.log('Hello World');
         window.measurePerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
       }
     }
