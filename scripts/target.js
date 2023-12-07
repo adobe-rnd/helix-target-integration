@@ -148,6 +148,7 @@ export default function startTargeting(client, host) {
   const offersPromise = fetchOffers(client, host);
   offersPromise.then((offers) => {
     console.log('offers', offers);
+    console.log('revealing body');
     document.body.style.visibility = 'visible';
     return offers;
   });
