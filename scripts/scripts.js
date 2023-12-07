@@ -128,7 +128,7 @@ function loadDelayed() {
 }
 
 async function loadPage() {
-  startTargeting('sitesinternal');
+  startTargeting('sitesinternal', window.location.protocol + '//' + window.location.host);
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
