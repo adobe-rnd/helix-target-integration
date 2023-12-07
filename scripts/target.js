@@ -70,7 +70,10 @@ function fetchOffers(client, host) {
         return acc;
       },
       [],
-    ));
+    )).then((offers) => {
+      window.measurePerfMark('targeting: loading offers');
+      return offers;
+    });
 }
 
 function getDecoratedMain() {
@@ -127,9 +130,9 @@ function renderOffers(section, decisions) {
       if (targetElement) {
         targetElement.innerHTML = content;
         console.log('section rendered', section);
+        window.measurePerfMark('targeting: rendering section');
       }
     }
-    window.measurePerfMark('targeting');
   });
 }
 
@@ -138,20 +141,19 @@ function renderOffers(section, decisions) {
  */
 export default function startTargeting(client, host) {
   console.log(`start targeting for ${client} on ${host}`);
-  window.createPerfMark('targeting');
-  const decisionsPromise = fetchOffers(client, host);
+  window.createPerfMark('targeting: all');
+  window.createPerfMark('targeting: loading offers');
+  window.createPerfMark('targeting: rendering section');
+  const offersPromise = fetchOffers(client, host);
   getDecoratedMain().then((main) => {
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
-      const decisions = await decisionsPromise;
+      const decisions = await offersPromise;
       console.log('decisions', decisions);
       const section = await sectionPromise;
       console.log('section ready to render', section);
       renderOffers(section, decisions);
-      if (section.style.display === 'none') {
-        section.style.display = null;
-      }
     })).then(() => {
-      console.log('all sections rendered', Performance.now());
+      window.measurePerfMark('targeting: all');
     });
   });
 }
