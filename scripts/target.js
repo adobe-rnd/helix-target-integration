@@ -30,7 +30,7 @@ function uuid() {
   });
 }
 
-function fetchDecisions(client, host) {
+export function fetchDecisions(client, host) {
   if (decisionsPromise) {
     return;
   }
@@ -149,3 +149,5 @@ export function startTargeting(client, host) {
     });
   });
 }
+
+window.fetchDecisions = fetchDecisions;
