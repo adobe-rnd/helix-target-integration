@@ -155,6 +155,15 @@ export default function startTargeting(client, host) {
   getDecoratedMain().then(async (main) => {
     const offers = await offersPromise;
     offers.forEach((offer) => {
+      const el = document.querySelector(offer.selector);
+      // find parent node that has .section class
+      let section = el;
+      while (section && !section.classList.contains('section')) {
+        section = section.parentNode;
+      }
+      if (section) {
+        console.log('found section', section);
+      }
       console.log('offer', offer);
     });
     window.measurePerfMark('targeting: loading offers');
