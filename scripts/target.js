@@ -167,7 +167,7 @@ export default function startTargeting(client, host) {
       if (section) {
         console.log(`hiding section ${section.id} for ${offer.selector} offer`);
         section.style.visibility = 'hidden';
-        window.createPerfMark(`targeting: rendering section: ${section.classList.join('_')}`);
+        window.createPerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
       }
       console.log('offer', offer);
     });
