@@ -135,7 +135,7 @@ function renderDecisions(section, decisions) {
 export function startTargeting(client, host) {
   console.log(`start targeting for ${client} on ${host}`);
   createPerfMark('targeting');
-  fetchDecisions(client, host);
+  //fetchDecisions(client, host);
   getDecoratedMain().then((main) => {
     getLoadedSections(main).map(async (sectionPromise) => {
       const decisions = await decisionsPromise;
