@@ -125,6 +125,7 @@ function renderDecisions(section, decisions) {
 }
 
 export function startTargeting(client, host) {
+  console.log(`start targeting for ${client} on ${host}`);
   createPerfMark('targeting');
   const decisionsPromise = fetchDecisions(client, host);
   getDecoratedMain().then((main) => {
