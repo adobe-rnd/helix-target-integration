@@ -95,7 +95,6 @@ function getLoadedSections(main) {
   return Array.from(sections).map((section) => {
     console.log('checking section', section);
     return new Promise((resolve) => {
-      section.style.display = 'none';
       if (section.getAttribute('data-section-status') === 'loaded') {
         console.log('section already loaded', section);
         return resolve(section);
