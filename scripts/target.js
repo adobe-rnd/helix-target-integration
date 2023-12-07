@@ -147,12 +147,13 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting: rendering section');
   document.body.style.visibility = 'hidden';
   const offersPromise = fetchOffers(client, host);
-  // offersPromise.then((offers) => {
-  //   console.log('offers', offers);
-  //   console.log('revealing body');
-  //   // document.body.style.visibility = 'visible';
-  //   return offers;
-  // });
+  offersPromise.then((offers) => {
+    console.log('offers', offers);
+    console.log('revealing body');
+    window.measurePerfMark('targeting: loading offers');
+    // document.body.style.visibility = 'visible';
+    return offers;
+  });
   getDecoratedMain().then(async (main) => {
     const offers = await offersPromise;
     offers.forEach((offer) => {
@@ -169,7 +170,6 @@ export default function startTargeting(client, host) {
       console.log('offer', offer);
     });
     document.body.style.visibility = 'visible';
-    window.measurePerfMark('targeting: loading offers');
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
       console.log('section ready to render', section);
