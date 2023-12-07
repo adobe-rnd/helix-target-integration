@@ -151,8 +151,7 @@ export default function startTargeting(client, host) {
         section.style.display = null;
       }
     })).then(() => {
-      console.log('all sections rendered');
-      console.timeStamp('targeting');
+      console.log('all sections rendered', Performance.now());
     });
   });
 }
