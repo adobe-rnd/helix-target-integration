@@ -93,6 +93,7 @@ function getDecoratedMain() {
 function getLoadedSections(main) {
   const sections = main.querySelectorAll('.section');
   return Array.from(sections).map((section) => {
+    sections.style.display = 'none';
     console.log('checking section', section);
     return new Promise((resolve) => {
       if (section.getAttribute('data-section-status') === 'loaded') {
