@@ -169,7 +169,7 @@ export default function startTargeting(client, host) {
       }
       console.log('offer', offer);
     });
-    document.body.style.visibility = 'visible';
+    // document.body.style.visibility = 'visible';
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
       console.log('section ready to render', section);
