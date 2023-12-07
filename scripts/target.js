@@ -147,7 +147,7 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting: all');
   window.createPerfMark('targeting: loading offers');
   window.createPerfMark('targeting: rendering section');
-  // document.body.style.visibility = 'hidden';
+  document.body.style.visibility = 'hidden';
   const offersPromise = fetchOffers(client, host);
   offersPromise.then((offers) => {
     console.log('offers', offers);
@@ -169,7 +169,7 @@ export default function startTargeting(client, host) {
       }
       console.log('offer', offer);
     });
-    // document.body.style.visibility = 'visible';
+    document.body.style.visibility = 'visible';
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
       console.log('section ready to render', section);
