@@ -32,6 +32,7 @@ function uuid() {
  *
  */
 function fetchOffers(client, host) {
+  window.createPerfMark('fetch-offers');
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
   const payload = {
     context: {
@@ -71,6 +72,7 @@ function fetchOffers(client, host) {
       },
       [],
     )).then((offers) => {
+      window.measurePerfMark('fetch-offers');
       // window.measurePerfMark('targeting: loading offers');
       return offers;
     });
@@ -149,9 +151,7 @@ export default function startTargeting(client, host) {
   const offersPromise = fetchOffers(client, host);
   offersPromise.then((offers) => {
     console.log('offers', offers);
-    console.log('revealing body');
     window.measurePerfMark('targeting: loading offers');
-    // document.body.style.visibility = 'visible';
     return offers;
   });
   getDecoratedMain().then(async (main) => {
