@@ -144,6 +144,7 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting: all');
   window.createPerfMark('targeting: loading offers');
   window.createPerfMark('targeting: rendering section');
+  document.body.style.display = 'none';
   const offersPromise = fetchOffers(client, host);
   getDecoratedMain().then((main) => {
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
@@ -153,6 +154,7 @@ export default function startTargeting(client, host) {
       console.log('section ready to render', section);
       renderOffers(section, decisions);
     })).then(() => {
+      document.body.style.display = null;
       window.measurePerfMark('targeting: all');
     });
   });
