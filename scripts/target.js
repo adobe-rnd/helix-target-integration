@@ -12,8 +12,6 @@ window.measurePerfMark = (name) => {
   console.log(`perf-${name} took ${duration.duration} ms`);
 }
 
-let decisionsPromise = null;
-
 function uuid() {
   var d = new Date().getTime();//Timestamp
   var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
@@ -30,10 +28,7 @@ function uuid() {
   });
 }
 
-export function fetchDecisions(client, host) {
-  if (decisionsPromise) {
-    return;
-  }
+function fetchDecisions(client, host) {
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
   const payload = {
     "context": {
@@ -57,7 +52,7 @@ export function fetchDecisions(client, host) {
     },
     body: JSON.stringify(payload)
   };
-  decisionsPromise = fetch(url, options)
+  return fetch(url, options)
     .then(response => response.json())
     .then(data => {
       return data?.execute?.pageLoad?.options?.reduce(
@@ -131,11 +126,10 @@ function renderDecisions(section, decisions) {
   });
 }
 
-
 export function startTargeting(client, host) {
   console.log(`start targeting for ${client} on ${host}`);
   createPerfMark('targeting');
-  //fetchDecisions(client, host);
+  const decisionsPromise = fetchDecisions(client, host);
   getDecoratedMain().then((main) => {
     getLoadedSections(main).map(async (sectionPromise) => {
       const decisions = await decisionsPromise;
@@ -149,5 +143,3 @@ export function startTargeting(client, host) {
     });
   });
 }
-
-window.fetchDecisions = fetchDecisions;
