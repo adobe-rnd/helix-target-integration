@@ -32,7 +32,7 @@ function uuid() {
  *
  */
 function fetchOffers(client, host) {
-  window.createPerfMark('fetch-offers');
+  // window.createPerfMark('fetch-offers');
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
   const payload = {
     context: {
@@ -72,7 +72,7 @@ function fetchOffers(client, host) {
       },
       [],
     )).then((offers) => {
-      window.measurePerfMark('fetch-offers');
+      // window.measurePerfMark('fetch-offers');
       // window.measurePerfMark('targeting: loading offers');
       return offers;
     });
