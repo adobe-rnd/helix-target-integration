@@ -130,7 +130,7 @@ function loadDelayed() {
 async function loadPage() {
   startTargeting(
     'sitesinternal',
-    'https://dev--helix-target-integration--vtsaplin.hlx.live'
+    'https://dev--helix-target-integration--vtsaplin.hlx.live',
   );
   await loadEager(document);
   await loadLazy(document);
