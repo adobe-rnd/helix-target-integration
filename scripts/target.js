@@ -99,7 +99,7 @@ function getLoadedSections(main) {
         console.log('section already loaded', section);
         return resolve(section);
       }
-      // section.style.visibility = 'hidden';
+      section.style.display = 'none';
       const config = {attributes: true, attributeFilter: ['data-section-status']};
       const observer = new MutationObserver((mutations, observer) => {
         console.log('section loaded', section);
@@ -139,7 +139,6 @@ export function startTargeting(client, host) {
       console.log('section ready to render', section);
       renderDecisions(section, decisions);
       if (section.style.visibility === 'hidden') {
-        section.style.visibility = 'visible';
         section.style.display = null;
       }
     });
