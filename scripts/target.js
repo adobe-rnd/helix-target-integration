@@ -129,6 +129,7 @@ function renderOffers(section, decisions) {
       const targetElement = section.querySelector(selector);
       if (targetElement) {
         targetElement.innerHTML = content;
+        section.style.visibility = 'visible';
         console.log('section rendered', section);
         window.measurePerfMark('targeting: rendering section');
       }
@@ -162,7 +163,8 @@ export default function startTargeting(client, host) {
         section = section.parentNode;
       }
       if (section) {
-        console.log('found section', section);
+        console.log(`hiding section ${section.id} for ${offer.selector} offer`);
+        section.style.visibility = 'hidden';
       }
       console.log('offer', offer);
     });
