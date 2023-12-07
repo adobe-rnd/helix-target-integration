@@ -118,6 +118,7 @@ function renderDecisions(section, decisions) {
     const {type, selector, content} = decision;
     if (type === 'setHtml') {
       const targetElement = section.querySelector(selector);
+      console.log('targetElement', targetElement);
       if (targetElement) {
         targetElement.innerHTML = content;
         console.log('section rendered', section);
