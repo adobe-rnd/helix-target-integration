@@ -36,6 +36,9 @@ function fetchDecisions(client, host) {
       "browser": {
         "host": host
       },
+      "address": {
+        "url": host
+      }
     },
     "execute": {
       "pageLoad": {}
