@@ -71,7 +71,7 @@ function fetchOffers(client, host) {
       },
       [],
     )).then((offers) => {
-      window.measurePerfMark('targeting: loading offers');
+      // window.measurePerfMark('targeting: loading offers');
       return offers;
     });
 }
@@ -144,17 +144,19 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting: all');
   window.createPerfMark('targeting: loading offers');
   window.createPerfMark('targeting: rendering section');
-  document.body.style.visibility = 'hidden';
+  // document.body.style.visibility = 'hidden';
   const offersPromise = fetchOffers(client, host);
-  offersPromise.then((offers) => {
+  // offersPromise.then((offers) => {
+  //   console.log('offers', offers);
+  //   console.log('revealing body');
+  //   // document.body.style.visibility = 'visible';
+  //   return offers;
+  // });
+  getDecoratedMain().then(async (main) => {
+    const offers = await offersPromise;
     console.log('offers', offers);
-    console.log('revealing body');
-    document.body.style.visibility = 'visible';
-    return offers;
-  });
-  getDecoratedMain().then((main) => {
+    window.measurePerfMark('targeting: loading offers');
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
-      const offers = await offersPromise;
       const section = await sectionPromise;
       console.log('section ready to render', section);
       renderOffers(section, offers);
