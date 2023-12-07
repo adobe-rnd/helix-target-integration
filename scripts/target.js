@@ -144,7 +144,7 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting: all');
   window.createPerfMark('targeting: loading offers');
   window.createPerfMark('targeting: rendering section');
-  document.body.style.display = 'none';
+  document.body.style.visibility = 'hidden';
   const offersPromise = fetchOffers(client, host);
   getDecoratedMain().then((main) => {
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
