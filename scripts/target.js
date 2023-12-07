@@ -133,10 +133,18 @@ function renderOffers(section, decisions) {
         targetElement.innerHTML = content;
         section.style.visibility = 'visible';
         console.log('section rendered', section);
-        window.measurePerfMark('targeting: rendering section');
+        window.measurePerfMark(`targeting: rendering section: ${section.classList.join('_')}`);
       }
     }
   });
+}
+
+function getSectionForSelector(selector) {
+  let section = document.querySelector(selector);
+  while (section && !section.classList.contains('section')) {
+    section = section.parentNode;
+  }
+  return section;
 }
 
 /**
@@ -144,32 +152,26 @@ function renderOffers(section, decisions) {
  */
 export default function startTargeting(client, host) {
   console.log(`start targeting for ${client} on ${host}`);
-  window.createPerfMark('targeting: all');
+  window.createPerfMark('targeting: pre-hiding');
   window.createPerfMark('targeting: loading offers');
-  window.createPerfMark('targeting: rendering section');
   document.body.style.visibility = 'hidden';
   const offersPromise = fetchOffers(client, host);
-  offersPromise.then((offers) => {
-    console.log('offers', offers);
-    window.measurePerfMark('targeting: loading offers');
-    return offers;
-  });
   getDecoratedMain().then(async (main) => {
     const offers = await offersPromise;
+    console.log('offers', offers);
+    window.measurePerfMark('targeting: loading offers');
+
     offers.forEach((offer) => {
-      const el = document.querySelector(offer.selector);
-      // find parent node that has .section class
-      let section = el;
-      while (section && !section.classList.contains('section')) {
-        section = section.parentNode;
-      }
+      const section = getSectionForSelector(offer.selector);
       if (section) {
         console.log(`hiding section ${section.id} for ${offer.selector} offer`);
         section.style.visibility = 'hidden';
+        window.createPerfMark(`targeting: rendering section: ${section.classList.join('_')}`);
       }
       console.log('offer', offer);
     });
     document.body.style.visibility = 'visible';
+    window.measurePerfMark('targeting: pre-hiding');
     Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
       console.log('section ready to render', section);
