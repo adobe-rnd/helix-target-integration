@@ -128,7 +128,10 @@ function loadDelayed() {
 }
 
 async function loadPage() {
-  startTargeting('sitesinternal', window.location.protocol + '//' + window.location.host);
+  startTargeting(
+    'sitesinternal',
+    'https://dev--helix-target-integration--vtsaplin.hlx.live'
+  );
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
