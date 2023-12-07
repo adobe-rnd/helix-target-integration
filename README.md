@@ -2,8 +2,8 @@
 Your project's description...
 
 ## Environments
-- Preview: https://main--helix-target-integration--vtsaplin.hlx.page/
-- Live: https://main--helix-target-integration--vtsaplin.hlx.live/
+- Preview: https://dev--helix-target-integration--vtsaplin.hlx.page/
+- Live: https://dev--helix-target-integration--vtsaplin.hlx.live/
 
 ## Installation
 
