@@ -28,12 +28,11 @@ function uuid() {
   });
 }
 
-/**
- *
- */
 function fetchOffers(client, host) {
-  // window.createPerfMark('fetch-offers');
-  const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
+  // TODO: We need to store the session ID in a cookie
+  const sessionId = uuid();
+  const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${sessionId}`;
+
   const payload = {
     context: {
       channel: 'web',
@@ -48,6 +47,7 @@ function fetchOffers(client, host) {
       pageLoad: {},
     },
   };
+
   const options = {
     method: 'POST',
     headers: {
@@ -56,6 +56,7 @@ function fetchOffers(client, host) {
     },
     body: JSON.stringify(payload),
   };
+
   return fetch(url, options)
     .then((response) => response.json())
     .then((data) => data?.execute?.pageLoad?.options?.reduce(
@@ -71,13 +72,12 @@ function fetchOffers(client, host) {
         return acc;
       },
       [],
-    )).then((offers) => {
-      // window.measurePerfMark('fetch-offers');
-      // window.measurePerfMark('targeting: loading offers');
-      return offers;
-    });
+    ));
 }
 
+/**
+ * Get the main element after it is decorated.
+ */
 function getDecoratedMain() {
   return new Promise((resolve) => {
     if (document.body.classList.contains('appear')) {
@@ -102,15 +102,14 @@ function getDecoratedMain() {
 function getLoadedSections(main) {
   const sections = main.querySelectorAll('.section');
   return Array.from(sections).map((section) => {
-    console.log('checking section', section);
     return new Promise((resolve) => {
       if (section.getAttribute('data-section-status') === 'loaded') {
-        console.log('section already loaded', section);
+        console.debug('section already loaded', section);
         resolve(section);
       }
       const config = { attributes: true, attributeFilter: ['data-section-status'] };
       const observer = new MutationObserver((mutations, observer) => {
-        console.log('section loaded', section);
+        console.debug('section loaded', section);
         if (section.getAttribute('data-section-status') === 'loaded') {
           observer.disconnect();
           resolve(section);
@@ -124,22 +123,24 @@ function getLoadedSections(main) {
 /**
  * Render offers in a section.
  */
-function renderOffers(section, decisions) {
-  decisions.forEach((decision) => {
-    const { type, selector, content } = decision;
+function renderOffers(section, offers) {
+  offers.forEach((offer) => {
+    const { type, selector, content } = offer;
     if (type === 'setHtml') {
       const targetElement = section.querySelector(selector);
       if (targetElement) {
         targetElement.innerHTML = content;
         section.style.visibility = 'visible';
-        console.log('section rendered', section);
-        console.log('Hello World');
+        console.debug('section rendered', section);
         window.measurePerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
       }
     }
   });
 }
 
+/**
+ * Get the section for a selector.
+ */
 function getSectionForSelector(selector) {
   let section = document.querySelector(selector);
   while (section && !section.classList.contains('section')) {
@@ -152,34 +153,35 @@ function getSectionForSelector(selector) {
  * Start targeting for a client on a host.
  */
 export default function startTargeting(client, host) {
-  console.log(`start targeting for ${client} on ${host}`);
+  console.log(`Targeting started for ${client} on ${host}`);
+
   window.createPerfMark('targeting: pre-hiding');
   window.createPerfMark('targeting: loading offers');
+
   document.body.style.visibility = 'hidden';
+
   const offersPromise = fetchOffers(client, host);
+
   getDecoratedMain().then(async (main) => {
     const offers = await offersPromise;
-    console.log('offers', offers);
     window.measurePerfMark('targeting: loading offers');
 
     offers.forEach((offer) => {
       const section = getSectionForSelector(offer.selector);
       if (section) {
-        console.log(`hiding section ${section.id} for ${offer.selector} offer`);
+        console.debug(`hiding section ${section.id} for ${offer.selector} offer`);
         section.style.visibility = 'hidden';
         window.createPerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
       }
-      console.log('offer', offer);
+      console.debug('offer', offer);
     });
+
     document.body.style.visibility = 'visible';
     window.measurePerfMark('targeting: pre-hiding');
-    Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
+
+    getLoadedSections(main).map(async (sectionPromise) => {
       const section = await sectionPromise;
-      console.log('section ready to render', section);
       renderOffers(section, offers);
-    })).then(() => {
-      // document.body.style.visibility = 'visible';
-      // window.measurePerfMark('targeting: all');
     });
   });
 }
