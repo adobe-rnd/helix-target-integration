@@ -117,6 +117,7 @@ function renderDecisions(section, decisions) {
   decisions.forEach((decision) => {
     const {type, selector, content} = decision;
     if (type === 'setHtml') {
+      console.log('selector', selector);
       const targetElement = section.querySelector(selector);
       console.log('targetElement', targetElement);
       if (targetElement) {
