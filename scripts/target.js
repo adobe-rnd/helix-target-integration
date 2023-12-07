@@ -117,9 +117,7 @@ function renderDecisions(section, decisions) {
   decisions.forEach((decision) => {
     const {type, selector, content} = decision;
     if (type === 'setHtml') {
-      console.log('selector', selector);
       const targetElement = section.querySelector(selector);
-      console.log('targetElement', targetElement);
       if (targetElement) {
         targetElement.innerHTML = content;
         console.log('section rendered', section);
@@ -139,7 +137,7 @@ export function startTargeting(client, host) {
       console.log('decisions', decisions);
       const section = await sectionPromise;
       console.log('section ready to render', section);
-      //renderDecisions(section, decisions);
+      renderDecisions(section, decisions);
       // if (section.style.visibility === 'hidden') {
       //   section.style.visibility = 'visible';
       //   section.style.display = null;
