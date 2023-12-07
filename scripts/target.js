@@ -28,7 +28,7 @@ function uuid() {
   });
 }
 
-function fetchDecisions(client, host) {
+function fetchOffers(client, host) {
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
   const payload = {
     "context": {
@@ -112,7 +112,7 @@ function getLoadedSections(main) {
   });
 }
 
-function renderDecisions(section, decisions) {
+function renderOffers(section, decisions) {
   decisions.forEach((decision) => {
     const {type, selector, content} = decision;
     if (type === 'setHtml') {
@@ -129,14 +129,14 @@ function renderDecisions(section, decisions) {
 export function startTargeting(client, host) {
   console.log(`start targeting for ${client} on ${host}`);
   createPerfMark('targeting');
-  const decisionsPromise = fetchDecisions(client, host);
+  const decisionsPromise = fetchOffers(client, host);
   getDecoratedMain().then((main) => {
     getLoadedSections(main).map(async (sectionPromise) => {
       const decisions = await decisionsPromise;
       console.log('decisions', decisions);
       const section = await sectionPromise;
       console.log('section ready to render', section);
-      renderDecisions(section, decisions);
+      renderOffers(section, decisions);
       if (section.style.display === 'none') {
         section.style.display = null;
       }
