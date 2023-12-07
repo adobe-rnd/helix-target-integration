@@ -152,6 +152,7 @@ export default function startTargeting(client, host) {
       }
     })).then(() => {
       console.log('all sections rendered');
+      console.timeStamp('targeting');
     });
   });
 }
