@@ -138,10 +138,10 @@ export function startTargeting(client, host) {
       const section = await sectionPromise;
       console.log('section ready to render', section);
       renderDecisions(section, decisions);
-      // if (section.style.visibility === 'hidden') {
-      //   section.style.visibility = 'visible';
-      //   section.style.display = null;
-      // }
+      if (section.style.visibility === 'hidden') {
+        section.style.visibility = 'visible';
+        section.style.display = null;
+      }
     });
   });
 }
