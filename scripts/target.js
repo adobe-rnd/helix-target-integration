@@ -97,7 +97,6 @@ function getDecoratedMain() {
 function getLoadedSections(main) {
   const sections = main.querySelectorAll('.section');
   return Array.from(sections).map((section) => {
-    section.style.display = 'none';
     console.log('checking section', section);
     return new Promise((resolve) => {
       if (section.getAttribute('data-section-status') === 'loaded') {
@@ -142,7 +141,7 @@ export default function startTargeting(client, host) {
   window.createPerfMark('targeting');
   const decisionsPromise = fetchOffers(client, host);
   getDecoratedMain().then((main) => {
-    getLoadedSections(main).map(async (sectionPromise) => {
+    Promise.all(getLoadedSections(main).map(async (sectionPromise) => {
       const decisions = await decisionsPromise;
       console.log('decisions', decisions);
       const section = await sectionPromise;
@@ -151,6 +150,8 @@ export default function startTargeting(client, host) {
       if (section.style.display === 'none') {
         section.style.display = null;
       }
+    })).then(() => {
+      console.log('all sections rendered');
     });
   });
 }
