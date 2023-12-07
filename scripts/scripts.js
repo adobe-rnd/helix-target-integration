@@ -12,7 +12,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './aem.js';
-import {startTargeting} from './target.js';
+import startTargeting from './target.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
