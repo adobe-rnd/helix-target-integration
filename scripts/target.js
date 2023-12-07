@@ -28,17 +28,14 @@ function uuid() {
   });
 }
 
-function fetchDecisions(client) {
+function fetchDecisions(client, host) {
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${uuid()}`;
   const payload = {
     "context": {
       "channel": "web",
       "browser": {
-        "host": "https://main--helix-target-poc--vtsaplin.hlx.live"
+        "host": host
       },
-      "address": {
-        "url": "https://main--helix-target-poc--vtsaplin.hlx.live"
-      }
     },
     "execute": {
       "pageLoad": {}
@@ -127,9 +124,9 @@ function renderDecisions(section, decisions) {
   });
 }
 
-export function startTargeting(client) {
+export function startTargeting(client, host) {
   createPerfMark('targeting');
-  const decisionsPromise = fetchDecisions(client);
+  const decisionsPromise = fetchDecisions(client, host);
   getDecoratedMain().then((main) => {
     getLoadedSections(main).map(async (sectionPromise) => {
       const decisions = await decisionsPromise;
