@@ -154,7 +154,7 @@ export default function startTargeting(client, host) {
       console.log('section ready to render', section);
       renderOffers(section, decisions);
     })).then(() => {
-      // document.body.style.display = null;
+      document.body.style.visibility = 'visible';
       window.measurePerfMark('targeting: all');
     });
   });
