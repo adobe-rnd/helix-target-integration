@@ -129,7 +129,7 @@ function renderOffers(section, decisions) {
       const targetElement = section.querySelector(selector);
       if (targetElement) {
         targetElement.innerHTML = content;
-        section.style.visibility = 'visible';
+        // section.style.visibility = 'visible';
         console.log('section rendered', section);
         window.measurePerfMark('targeting: rendering section');
       }
