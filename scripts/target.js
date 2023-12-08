@@ -59,6 +59,7 @@ function getOrCreateSessionId() {
 function getApplicableOffers(data) {
   const offers = [];
   const options = data.execute?.pageLoad?.options ?? [];
+  console.debug(`received ${options.length} options`); // eslint-disable-line no-console
   options.forEach((option) => {
     if (option.type === 'actions') {
       option.content.forEach((content) => {
@@ -84,9 +85,7 @@ async function fetchOffers(client, host, sessionId) {
   const payload = {
     context: {
       channel: 'web',
-      // browser: {
-      //   host,
-      // },
+      property: 'vitaly',
       address: {
         url: host,
       },
@@ -176,11 +175,7 @@ function getLoadedSections(main) {
  */
 function displayOffers(section, offers) {
   offers.forEach((offer) => {
-    const {
-      type,
-      selector,
-      content,
-    } = offer;
+    const { type, selector, content } = offer;
     if (type === 'setHtml') {
       const targetElement = section.querySelector(selector);
       if (targetElement) {
