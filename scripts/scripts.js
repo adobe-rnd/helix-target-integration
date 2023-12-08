@@ -12,7 +12,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './aem.js';
-import startTargeting from './target.js';
+import loadTargetOffers from './target.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -128,7 +128,7 @@ function loadDelayed() {
 }
 
 async function loadPage() {
-  startTargeting(
+  loadTargetOffers(
     'sitesinternal',
     'https://dev--helix-target-integration--vtsaplin.hlx.live',
   );

@@ -1,36 +1,84 @@
-// Create a performance mark
-window.createPerfMark = (name) => {
-  performance.mark(`perf-start-${name}`);
-  console.log(`perf-${name} started at ${performance.now()} + ms`);
-};
+import { createPerformanceMark, measurePerformance } from './benchmark.js';
 
-// Measure the time between two performance marks
-window.measurePerfMark = (name) => {
-  performance.mark(`perf-stop-${name}`);
-  const duration = performance.measure(`perf-${name}`, `perf-start-${name}`, `perf-stop-${name}`);
-  console.log(`perf-${name} stopped at ${performance.now()} ms`);
-  console.log(`perf-${name} took ${duration.duration} ms`);
-};
+const SESSION_COOKIE_NAME = 'sessionId';
+const SESSION_COOKIE_EXPIRATION_DAYS = 7;
 
+/**
+ * Generate a UUID.
+ * @returns {string}
+ */
 function uuid() {
-  let d = new Date().getTime();
-  let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;// Time in microseconds since page-load or 0 if unsupported
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    let r = Math.random() * 16;
-    if (d > 0) {
-      r = (d + r) % 16 | 0;
-      d = Math.floor(d / 16);
-    } else {
-      r = (d2 + r) % 16 | 0;
-      d2 = Math.floor(d2 / 16);
-    }
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  return `sess-${Math.random()
+    .toString(36)
+    .substring(2, 9)}-${Date.now()
+    .toString(36)}`;
+}
+
+/**
+ * Get a cookie by name.
+ * @param name
+ * @returns {string}
+ */
+function getCookie(name) {
+  const cookies = document.cookie.split(';');
+  return cookies.find((cookie) => {
+    const [key, value] = cookie.split('=');
+    return key.trim() === name && value;
   });
 }
 
-function fetchOffers(client, host) {
-  // TODO: We need to store the session ID in a cookie
-  const sessionId = uuid();
+/**
+ * Set a cookie.
+ * @param name
+ * @param value
+ * @param days
+ */
+function setCookie(name, value, days) {
+  document.cookie = `${name}=${value}; max-age=${days * 24 * 60 * 60}; path=/`;
+}
+
+/**
+ * Get the session ID.
+ * @returns {string}
+ */
+function getOrCreateSessionId() {
+  const existingSessionId = getCookie(SESSION_COOKIE_NAME);
+  if (existingSessionId) {
+    return existingSessionId;
+  }
+  const newSessionId = uuid();
+  setCookie(SESSION_COOKIE_NAME, newSessionId, SESSION_COOKIE_EXPIRATION_DAYS);
+  return newSessionId;
+}
+
+/**
+ * Get all offers from a response.
+ * @param data
+ * @returns {*[]}
+ */
+function getApplicableOffers(data) {
+  const offers = [];
+  const options = data.execute?.pageLoad?.options ?? [];
+  options.forEach((option) => {
+    if (option.type === 'actions') {
+      option.content.forEach((content) => {
+        if (content.type === 'setHtml') {
+          offers.push(content);
+        }
+      });
+    }
+  });
+  return offers;
+}
+
+/**
+ * Fetch offers for a client and a host.
+ * @param client
+ * @param host
+ * @param sessionId
+ * @returns {Promise<any>}
+ */
+async function fetchOffers(client, host, sessionId) {
   const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${sessionId}`;
 
   const payload = {
@@ -57,37 +105,33 @@ function fetchOffers(client, host) {
     body: JSON.stringify(payload),
   };
 
-  return fetch(url, options)
-    .then((response) => response.json())
-    .then((data) => data?.execute?.pageLoad?.options?.reduce(
-      (acc, option) => {
-        if (option.type === 'actions') {
-          return option.content.reduce((acc, content) => {
-            if (content.type === 'setHtml') {
-              acc = [...acc, content];
-            }
-            return acc;
-          }, acc);
-        }
-        return acc;
-      },
-      [],
-    ));
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch offers: ${response.status} ${response.statusText}`);
+  }
+  const data = await response.json();
+
+  return getApplicableOffers(data);
 }
 
 /**
  * Get the main element after it is decorated.
  */
-function getDecoratedMain() {
+function getDecoratedContent() {
   return new Promise((resolve) => {
     if (document.body.classList.contains('appear')) {
-      console.log('main already decorated');
+      // eslint-disable-next-line no-console
+      console.debug('content is already decorated... resolving immediately');
       resolve(document.body.querySelector('main'));
     }
-    const config = { attributes: true, attributeFilter: ['class'] };
-    const observer = new MutationObserver((mutations, observer) => {
+    const config = {
+      attributes: true,
+      attributeFilter: ['class'],
+    };
+    const observer = new MutationObserver(() => {
       if (document.body.classList.contains('appear')) {
-        console.log('main decorated');
+        // eslint-disable-next-line no-console
+        console.debug('content has been decorated... resolving');
         observer.disconnect();
         resolve(document.body.querySelector('main'));
       }
@@ -98,50 +142,68 @@ function getDecoratedMain() {
 
 /**
  * Get all sections that are already loaded.
+ * @param main The main element.
  */
 function getLoadedSections(main) {
   const sections = main.querySelectorAll('.section');
-  return Array.from(sections).map((section) => {
-    return new Promise((resolve) => {
+  return Array.from(sections).map((section) => new Promise((resolve) => {
+    if (section.getAttribute('data-section-status') === 'loaded') {
+      // eslint-disable-next-line no-console
+      console.debug('section is already loaded... resolving immediately', section);
+      resolve(section);
+    }
+    const config = {
+      attributes: true,
+      attributeFilter: ['data-section-status'],
+    };
+    const observer = new MutationObserver(() => {
       if (section.getAttribute('data-section-status') === 'loaded') {
-        console.debug('section already loaded', section);
+        // eslint-disable-next-line no-console
+        console.debug('section has been loaded... resolving', section);
+        observer.disconnect();
         resolve(section);
       }
-      const config = { attributes: true, attributeFilter: ['data-section-status'] };
-      const observer = new MutationObserver((mutations, observer) => {
-        console.debug('section loaded', section);
-        if (section.getAttribute('data-section-status') === 'loaded') {
-          observer.disconnect();
-          resolve(section);
-        }
-      });
-      observer.observe(section, config);
     });
-  });
+    observer.observe(section, config);
+  }));
 }
 
 /**
  * Render offers in a section.
+ * @param section The section.
+ * @param offers The offers.
  */
-function renderOffers(section, offers) {
+function displayOffers(section, offers) {
   offers.forEach((offer) => {
-    const { type, selector, content } = offer;
+    const {
+      type,
+      selector,
+      content,
+    } = offer;
     if (type === 'setHtml') {
       const targetElement = section.querySelector(selector);
       if (targetElement) {
         targetElement.innerHTML = content;
-        section.style.visibility = 'visible';
-        console.debug('section rendered', section);
-        window.measurePerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
+        // eslint-disable-next-line no-console
+        console.debug('section has been rendered', section);
+        measurePerformance(
+          `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
+        );
       }
     }
   });
+  if (section.style.visibility === 'hidden') {
+    // eslint-disable-next-line no-console
+    console.debug('revealing section', section);
+    section.style.visibility = 'visible';
+  }
 }
 
 /**
  * Get the section for a selector.
+ * @param selector The element selector.
  */
-function getSectionForSelector(selector) {
+function getSectionByElementSelector(selector) {
   let section = document.querySelector(selector);
   while (section && !section.classList.contains('section')) {
     section = section.parentNode;
@@ -151,37 +213,47 @@ function getSectionForSelector(selector) {
 
 /**
  * Start targeting for a client on a host.
+ * @param client The client.
+ * @param host The host.
  */
-export default function startTargeting(client, host) {
-  console.log(`Targeting started for ${client} on ${host}`);
+export default function loadTargetOffers(client, host) {
+  // eslint-disable-next-line no-console
+  console.debug(`Loading offers for client ${client} on host ${host}`);
 
-  window.createPerfMark('targeting: pre-hiding');
-  window.createPerfMark('targeting: loading offers');
+  createPerformanceMark('targeting:loading-offers');
+
+  const sessionId = getOrCreateSessionId();
+  // eslint-disable-next-line no-console
+  console.debug(`Using session ID ${sessionId}`);
 
   document.body.style.visibility = 'hidden';
 
-  const offersPromise = fetchOffers(client, host);
+  const pendingOffers = fetchOffers(client, host, sessionId);
 
-  getDecoratedMain().then(async (main) => {
-    const offers = await offersPromise;
-    window.measurePerfMark('targeting: loading offers');
+  getDecoratedContent()
+    .then(async (main) => {
+      const offers = await pendingOffers;
+      measurePerformance('targeting:loading-offers');
 
-    offers.forEach((offer) => {
-      const section = getSectionForSelector(offer.selector);
-      if (section) {
-        console.debug(`hiding section ${section.id} for ${offer.selector} offer`);
-        section.style.visibility = 'hidden';
-        window.createPerfMark(`targeting: rendering section: ${Array.from(section.classList).join('_')}`);
-      }
-      console.debug('offer', offer);
+      offers.forEach((offer) => {
+        // eslint-disable-next-line no-console
+        console.debug('processing offer', offer);
+        const section = getSectionByElementSelector(offer.selector);
+        if (section) {
+          // eslint-disable-next-line no-console
+          console.debug(`hiding section for ${offer.selector} offer`, section);
+          section.style.visibility = 'hidden';
+          createPerformanceMark(
+            `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
+          );
+        }
+      });
+
+      document.body.style.visibility = 'visible';
+
+      getLoadedSections(main)
+        .forEach((pendingSection) => {
+          pendingSection.then((section) => displayOffers(section, offers));
+        });
     });
-
-    document.body.style.visibility = 'visible';
-    window.measurePerfMark('targeting: pre-hiding');
-
-    getLoadedSections(main).map(async (sectionPromise) => {
-      const section = await sectionPromise;
-      renderOffers(section, offers);
-    });
-  });
 }
