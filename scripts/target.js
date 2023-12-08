@@ -179,8 +179,8 @@ function getLoadedSections(main) {
  */
 function displayOffers(section, offers) {
   offers.forEach((offer) => {
-    const { type, selector, content } = offer;
-    const targetElement = section.querySelector(selector);
+    const { type, cssSelector, content } = offer;
+    const targetElement = section.querySelector(cssSelector);
     if (targetElement) {
       switch (type) {
         case 'insertAfter':
@@ -193,7 +193,7 @@ function displayOffers(section, offers) {
           break;
         case 'setHtml':
           console.debug('setting content of', targetElement); // eslint-disable-line no-console
-          section.innerHTML = content;
+          targetElement.innerHTML = content;
           break;
         default:
           console.warn(`unsupported action type ${type}`); // eslint-disable-line no-console
