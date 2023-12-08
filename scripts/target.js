@@ -82,8 +82,7 @@ function getApplicableOffers(data) {
 async function fetchOffers(client, sessionId, useProxy) {
   const url = `${window.location.protocol}//${window.location.host}`;
 
-  // eslint-disable-next-line no-console
-  console.debug(`Loading offers for client ${client} and url ${url}`);
+  console.debug(`Loading offers for client ${client} and url ${url}`); // eslint-disable-line no-console
 
   const payload = {
     context: {
@@ -233,16 +232,14 @@ export default function loadOffers(client, useProxy) {
       measurePerformance('targeting:loading-offers');
 
       offers.forEach((offer) => {
-        // eslint-disable-next-line no-console
-        console.debug('processing offer', offer);
+        console.debug('processing offer', offer); // eslint-disable-line no-console
         const section = getSectionByElementSelector(offer.selector);
         if (section) {
           // eslint-disable-next-line no-console
           console.debug(`hiding section for selector ${offer.selector}`, section);
           section.style.visibility = 'hidden';
           createPerformanceMark(
-            `targeting:rendering-section:${Array.from(section.classList)
-              .join('_')}`,
+            `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
           );
         }
       });
