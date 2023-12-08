@@ -85,12 +85,12 @@ async function fetchOffers(client, host, sessionId) {
   const payload = {
     context: {
       channel: 'web',
-      // property: {
-      //   token: 'dev-helix-target-integration',
-      // },
       address: {
         url: host,
       },
+    },
+    property: {
+      token: 'dev-helix-target-integration',
     },
     execute: {
       pageLoad: {},
