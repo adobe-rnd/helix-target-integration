@@ -2,8 +2,8 @@
 The project is a proof of concept for integrating Target VEC with Helix.
 
 ## Environments
-- Preview: https://dev--helix-target-integration--vtsaplin.hlx.page/
-- Live: https://dev--helix-target-integration--vtsaplin.hlx.live/
+- Preview: https://main--helix-target-integration--vtsaplin.hlx.page/
+- Live: https://main--helix-target-integration--vtsaplin.hlx.live/
 
 ## CDN setup
 We recommend using Cloudflare Workers to proxy all upstream requests to the Target and Helix origins. 
