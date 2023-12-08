@@ -84,9 +84,9 @@ async function fetchOffers(client, host, sessionId) {
   const payload = {
     context: {
       channel: 'web',
-      browser: {
-        host,
-      },
+      // browser: {
+      //   host,
+      // },
       address: {
         url: host,
       },
@@ -146,26 +146,27 @@ function getDecoratedContent() {
  */
 function getLoadedSections(main) {
   const sections = main.querySelectorAll('.section');
-  return Array.from(sections).map((section) => new Promise((resolve) => {
-    if (section.getAttribute('data-section-status') === 'loaded') {
-      // eslint-disable-next-line no-console
-      console.debug('section is already loaded... resolving immediately', section);
-      resolve(section);
-    }
-    const config = {
-      attributes: true,
-      attributeFilter: ['data-section-status'],
-    };
-    const observer = new MutationObserver(() => {
+  return Array.from(sections)
+    .map((section) => new Promise((resolve) => {
       if (section.getAttribute('data-section-status') === 'loaded') {
         // eslint-disable-next-line no-console
-        console.debug('section has been loaded... resolving', section);
-        observer.disconnect();
+        console.debug('section is already loaded... resolving immediately', section);
         resolve(section);
       }
-    });
-    observer.observe(section, config);
-  }));
+      const config = {
+        attributes: true,
+        attributeFilter: ['data-section-status'],
+      };
+      const observer = new MutationObserver(() => {
+        if (section.getAttribute('data-section-status') === 'loaded') {
+          // eslint-disable-next-line no-console
+          console.debug('section has been loaded... resolving', section);
+          observer.disconnect();
+          resolve(section);
+        }
+      });
+      observer.observe(section, config);
+    }));
 }
 
 /**
@@ -241,10 +242,11 @@ export default function loadTargetOffers(client, host) {
         const section = getSectionByElementSelector(offer.selector);
         if (section) {
           // eslint-disable-next-line no-console
-          console.debug(`hiding section for ${offer.selector} offer`, section);
+          console.debug(`hiding section for selector ${offer.selector}`, section);
           section.style.visibility = 'hidden';
           createPerformanceMark(
-            `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
+            `targeting:rendering-section:${Array.from(section.classList)
+              .join('_')}`,
           );
         }
       });
