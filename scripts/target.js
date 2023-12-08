@@ -89,9 +89,6 @@ async function fetchOffers(client, host, sessionId) {
         url: host,
       },
     },
-    property: {
-      token: 'dev-helix-target-integration',
-    },
     execute: {
       pageLoad: {},
     },
