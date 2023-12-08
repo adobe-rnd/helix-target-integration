@@ -64,7 +64,7 @@ function getApplicableOffers(data) {
     if (option.type === 'actions') {
       option.content.forEach((content) => {
         console.debug('processing content', content); // eslint-disable-line no-console
-        if (content.type === 'setHtml') {
+        if (['setHtml', 'insertAfter', 'insertBefore'].includes(content.type)) {
           offers.push(content);
         }
       });
@@ -179,17 +179,26 @@ function getLoadedSections(main) {
  */
 function displayOffers(section, offers) {
   offers.forEach((offer) => {
-    const { type, selector, content } = offer;
-    if (type === 'setHtml') {
-      const targetElement = section.querySelector(selector);
-      if (targetElement) {
-        targetElement.innerHTML = content;
-        // eslint-disable-next-line no-console
-        console.debug('section has been rendered', section);
-        measurePerformance(
-          `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
-        );
+    const { type, cssSelector, content } = offer;
+    const targetElement = section.querySelector(cssSelector);
+    if (targetElement) {
+      switch (type) {
+        case 'insertAfter':
+          targetElement.in('afterend', content);
+          break;
+        case 'insertBefore':
+          targetElement.insertAdjacentHTML('beforebegin', content);
+          break;
+        case 'setHtml':
+          section.innerHTML = content;
+          break;
+        default:
+          console.warn(`unsupported action type ${type}`); // eslint-disable-line no-console
       }
+      console.debug('section has been rendered', section); // eslint-disable-line no-console
+      measurePerformance(
+        `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
+      );
     }
   });
   if (section.style.visibility === 'hidden') {
