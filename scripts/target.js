@@ -41,7 +41,7 @@ function setCookie(name, value, days) {
  * Get the session ID.
  * @returns {string}
  */
-function getOrCreateSessionId() {
+function getSessionId() {
   const existingSessionId = getCookie(SESSION_COOKIE_NAME);
   if (existingSessionId) {
     return existingSessionId;
@@ -75,11 +75,16 @@ function getApplicableOffers(data) {
 /**
  * Fetch offers for a client and a host.
  * @param client
- * @param url
  * @param sessionId
+ * @param useProxy Whether to use the proxy.
  * @returns {Promise<any>}
  */
-async function fetchOffers(client, url, sessionId) {
+async function fetchOffers(client, sessionId, useProxy) {
+  const url = `${window.location.protocol}//${window.location.host}`;
+
+  // eslint-disable-next-line no-console
+  console.debug(`Loading offers for client ${client} and url ${url}`);
+
   const payload = {
     context: {
       channel: 'web',
@@ -101,7 +106,9 @@ async function fetchOffers(client, url, sessionId) {
     body: JSON.stringify(payload),
   };
 
-  const response = await fetch(`/rest/v1/delivery?client=${client}&sessionId=${sessionId}`, options);
+  const host = useProxy ? '/' : `https://${client}.tt.omtrdc.net`;
+  console.debug(`Using target host: ${host}`); // eslint-disable-line no-console
+  const response = await fetch(`${host}/rest/v1/delivery?client=${client}&sessionId=${sessionId}`, options);
   if (!response.ok) {
     throw new Error(`Failed to fetch offers: ${response.status} ${response.statusText}`);
   }
@@ -207,22 +214,18 @@ function getSectionByElementSelector(selector) {
 /**
  * Start targeting for a client on a host.
  * @param client The client.
+ * @param useProxy Whether to use the proxy.
  */
-export default function loadTargetOffers(client) {
-  const host = `${window.location.protocol}//${window.location.host}`;
-
-  // eslint-disable-next-line no-console
-  console.debug(`Loading offers for client ${client} on host ${host}`);
-
+export default function loadOffers(client, useProxy) {
   createPerformanceMark('targeting:loading-offers');
 
-  const sessionId = getOrCreateSessionId();
+  const sessionId = getSessionId();
   // eslint-disable-next-line no-console
   console.debug(`Using session ID ${sessionId}`);
 
   document.body.style.visibility = 'hidden';
 
-  const pendingOffers = fetchOffers(client, host, sessionId);
+  const pendingOffers = fetchOffers(client, sessionId, useProxy ?? window.location.host.endsWith('workers.dev'));
 
   getDecoratedContent()
     .then(async (main) => {
