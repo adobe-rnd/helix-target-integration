@@ -184,12 +184,15 @@ function displayOffers(section, offers) {
     if (targetElement) {
       switch (type) {
         case 'insertAfter':
+          console.debug('inserting content after', targetElement); // eslint-disable-line no-console
           targetElement.insertAdjacentHTML('afterend', content);
           break;
         case 'insertBefore':
+          console.debug('inserting content before', targetElement); // eslint-disable-line no-console
           targetElement.insertAdjacentHTML('beforebegin', content);
           break;
         case 'setHtml':
+          console.debug('setting content of', targetElement); // eslint-disable-line no-console
           section.innerHTML = content;
           break;
         default:
