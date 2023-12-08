@@ -179,18 +179,18 @@ function getLoadedSections(main) {
  */
 function displayOffers(section, offers) {
   offers.forEach((offer) => {
-    const { type, cssSelector, content } = offer;
-    const targetElement = section.querySelector(cssSelector);
+    const { type, selector, content } = offer;
+    const targetElement = section.querySelector(selector);
     if (targetElement) {
       switch (type) {
-        // case 'insertAfter':
-        //   console.debug('inserting content after', targetElement); // eslint-disable-line no-console
-        //   targetElement.insertAdjacentHTML('afterend', content);
-        //   break;
-        // case 'insertBefore':
-        //   console.debug('inserting content before', targetElement); // eslint-disable-line no-console
-        //   targetElement.insertAdjacentHTML('beforebegin', content);
-        //   break;
+        case 'insertAfter':
+          console.debug('inserting content after', targetElement); // eslint-disable-line no-console
+          targetElement.insertAdjacentHTML('afterend', content);
+          break;
+        case 'insertBefore':
+          console.debug('inserting content before', targetElement); // eslint-disable-line no-console
+          targetElement.insertAdjacentHTML('beforebegin', content);
+          break;
         case 'setHtml':
           console.debug('setting content of', targetElement); // eslint-disable-line no-console
           section.innerHTML = content;
