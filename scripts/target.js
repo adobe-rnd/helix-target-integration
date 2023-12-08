@@ -63,6 +63,7 @@ function getApplicableOffers(data) {
   options.forEach((option) => {
     if (option.type === 'actions') {
       option.content.forEach((content) => {
+        console.debug('processing content', content); // eslint-disable-line no-console
         if (content.type === 'setHtml') {
           offers.push(content);
         }
