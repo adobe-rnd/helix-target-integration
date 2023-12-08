@@ -184,7 +184,7 @@ function displayOffers(section, offers) {
     if (targetElement) {
       switch (type) {
         case 'insertAfter':
-          targetElement.in('afterend', content);
+          targetElement.insertAdjacentHTML('afterend', content);
           break;
         case 'insertBefore':
           targetElement.insertAdjacentHTML('beforebegin', content);
