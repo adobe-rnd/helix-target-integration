@@ -75,18 +75,16 @@ function getApplicableOffers(data) {
 /**
  * Fetch offers for a client and a host.
  * @param client
- * @param host
+ * @param url
  * @param sessionId
  * @returns {Promise<any>}
  */
-async function fetchOffers(client, host, sessionId) {
-  const url = `https://${client}.tt.omtrdc.net/rest/v1/delivery?client=${client}&sessionId=${sessionId}`;
-
+async function fetchOffers(client, url, sessionId) {
   const payload = {
     context: {
       channel: 'web',
       address: {
-        url: host,
+        url,
       },
     },
     execute: {
@@ -103,7 +101,7 @@ async function fetchOffers(client, host, sessionId) {
     body: JSON.stringify(payload),
   };
 
-  const response = await fetch(url, options);
+  const response = await fetch(`/rest/v1/delivery?client=${client}&sessionId=${sessionId}`, options);
   if (!response.ok) {
     throw new Error(`Failed to fetch offers: ${response.status} ${response.statusText}`);
   }
@@ -209,9 +207,10 @@ function getSectionByElementSelector(selector) {
 /**
  * Start targeting for a client on a host.
  * @param client The client.
- * @param host The host.
  */
-export default function loadTargetOffers(client, host) {
+export default function loadTargetOffers(client) {
+  const host = `${window.location.protocol}//${window.location.host}`;
+
   // eslint-disable-next-line no-console
   console.debug(`Loading offers for client ${client} on host ${host}`);
 
