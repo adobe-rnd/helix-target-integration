@@ -1,5 +1,3 @@
-import { createPerformanceMark, measurePerformance } from './benchmark.js';
-
 const SESSION_COOKIE_NAME = 'sessionId';
 const SESSION_COOKIE_EXPIRATION_DAYS = 7;
 
@@ -199,7 +197,7 @@ function displayOffers(section, offers) {
           console.warn(`unsupported action type ${type}`); // eslint-disable-line no-console
       }
       console.debug('section has been rendered', section); // eslint-disable-line no-console
-      measurePerformance(
+      window?.measurePerformance(
         `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
       );
     }
@@ -229,7 +227,13 @@ function getSectionByElementSelector(selector) {
  * @param useProxy Whether to use the proxy.
  */
 export default function loadOffers(client, useProxy) {
-  createPerformanceMark('targeting:loading-offers');
+  if (window.location.href.includes('adobe_authoring_enabled')) {
+    // eslint-disable-next-line no-console
+    console.debug('authoring enabled... skipping targeting');
+    return;
+  }
+
+  window?.createPerformanceMark('targeting:loading-offers');
 
   const sessionId = getSessionId();
   // eslint-disable-next-line no-console
@@ -242,7 +246,7 @@ export default function loadOffers(client, useProxy) {
   getDecoratedContent()
     .then(async (main) => {
       const offers = await pendingOffers;
-      measurePerformance('targeting:loading-offers');
+      window?.measurePerformance('targeting:loading-offers');
 
       offers.forEach((offer) => {
         console.debug('processing offer', offer); // eslint-disable-line no-console
@@ -251,7 +255,7 @@ export default function loadOffers(client, useProxy) {
           // eslint-disable-next-line no-console
           console.debug(`hiding section for selector ${offer.selector}`, section);
           section.style.visibility = 'hidden';
-          createPerformanceMark(
+          window?.createPerformanceMark(
             `targeting:rendering-section:${Array.from(section.classList).join('_')}`,
           );
         }
