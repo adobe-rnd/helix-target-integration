@@ -7,6 +7,10 @@ The project is a proof of concept for integrating Target VEC with Helix.
 
 ## Adding Target integration to a Helix project
 1. Copy the [`scripts/target.js`](scripts/target.js) to your project.
+2. Include the script in the [`head.html`](index.html) as early as possible:
+```html
+<script src="./scripts/target.js" type="module"></script>
+```
 2. Add a call to `loadTargetOffers` to the 'loadPage' function as follows:
 ```js
 async function loadPage() {
