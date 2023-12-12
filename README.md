@@ -1,9 +1,34 @@
-# Your Project's Title...
-Your project's description...
+# Target VEC for Helix
+The project is a proof of concept for integrating Target VEC with Helix.
 
 ## Environments
-- Preview: https://main--{repo}--{owner}.hlx.page/
-- Live: https://main--{repo}--{owner}.hlx.live/
+- Preview: https://main--helix-target-integration--adobe-rnd.hlx.page/
+- Live: https://main--helix-target-integration--adobe-rnd.hlx.live/
+
+## Adding Target integration to a Helix project
+1. Copy the [`scripts/target.js`](scripts/target.js) to your project.
+2. Include the script in the [`head.html`](index.html) as early as possible:
+```html
+<script src="./scripts/target.js" type="module"></script>
+```
+2. Add a call to `loadTargetOffers` to the 'loadPage' function as follows:
+```js
+async function loadPage() {
+  loadTargetOffers('{Target Client Code}');
+  await loadEager(document);
+  await loadLazy(document);
+  loadDelayed();
+}
+```
+
+## CDN setup
+We recommend using Cloudflare Workers to proxy all upstream requests to the Target and Helix origins. 
+This allows you to use the same domain for both Helix and Target, which is required for archiving the best performance.
+Please follow the instructions below to set up the proxy:
+- Deploy the CF [worker](cloudflare/worker.js) to your Cloudflare account.
+- Add the following environment variables to the worker:
+  - `CLIENT` - your Target client code (e.g. `helix-target-integration`)
+  - `HOST` - your Helix host (e.g. `dev--helix-target-integration--vtsaplin.hlx.page`)
 
 ## Installation
 

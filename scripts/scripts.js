@@ -12,6 +12,7 @@ import {
   loadBlocks,
   loadCSS,
 } from './aem.js';
+import loadTargetOffers from './target.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
@@ -127,6 +128,7 @@ function loadDelayed() {
 }
 
 async function loadPage() {
+  loadTargetOffers('sitesinternal');
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
